@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar color="tertiary">
+    <ion-title>Detalhes do contato</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-label>Detalhes</ion-label>
+  <!-- Input with placeholder -->
+  <ion-item>
+    <ion-label>Habilitar edição</ion-label>
+    <ion-toggle color="sucess" (ionChange) = "alterarEdicao()"></ion-toggle>
+  </ion-item>
+  <ion-item>
+    <ion-input disabled="{{editar}}" placeholder="Nome" [(ngModel)]="nome"></ion-input>
+  </ion-item>
+  <!-- Input with placeholder -->
+  <ion-item>
+    <ion-input disabled="{{editar}}" placeholder="Telefone" [(ngModel)]="telefone" type="number"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-select disabled="{{editar}}" placeholder="Selecione o Genero" [(ngModel)]="genero">
+      <ion-select-option value="Masculino">Masculino</ion-select-option>
+      <ion-select-option value="Feminino">Feminino</ion-select-option>
+      <ion-select-option value="não declarado">Não Declarar</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label>Data de Nascimento</ion-label>
+    <ion-datetime-button datetime="datetime" disabled="{{editar}}"></ion-datetime-button>
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime [(ngModel)]="dataNascimento" id="datetime" presentation="date" max={{data}}></ion-datetime>
+      </ng-template>
+    </ion-modal>
+  </ion-item>
+
+  <ion-button disabled="{{editar}}" expand="block" (click)="edicao()">Editar</ion-button>
+  <ion-button disabled="{{editar}}" expand="block" (click)="excluir()" color="danger">Excluir</ion-button>
+</ion-content>
