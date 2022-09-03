@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { Contato } from '../../models/contato';
@@ -10,35 +11,43 @@ import { ContatoService } from '../../services/contato.service';
   styleUrls: ['./cadastrar.page.scss'],
 })
 export class CadastrarPage implements OnInit {
-  nome : string;
+  /*nome : string;
   telefone : number;
   genero : string;
-  dataNascimento : string;
+  dataNascimento : string;*/
+  form_cadastrar: FormGroup;
+  is_Submitted: boolean = false; //form tempo real
   data : string;
-  constructor(private alertController: AlertController,private _router : Router, private _contatoService : ContatoService) { }
+  constructor(private alertController: AlertController,private _router : Router, private _contatoService : ContatoService, private _formBuilder:FormBuilder) { }
 
   ngOnInit() {
     this.data=new Date().toISOString();
+    this.form_cadastrar = this._formBuilder.group({
+      nome:["",[Validators.required]],
+      telefone:["",[Validators.required,Validators.minLength(10)]],
+      genero:["",[Validators.required]],
+      dataNascimento:["",[Validators.required]]
+    });
   }
 
-  cadastrar() : void{
-    this.dataNascimento = this.dataNascimento.split('T')[0];
-    //console.log(this.genero+" "+this.dataNascimento);
-    if((this.validar(this.nome))&&(this.validar(this.telefone))&&(this.validar(this.genero))&&(this.validar(this.dataNascimento))){
-      let contato = new Contato(this.nome,this.telefone,this.genero,this.dataNascimento);
-      this._contatoService.inserir(contato);
-      this.presentAlert("Agenda","Sucesso","Cadastro Realizado");
-      this._router.navigate(["/home"]);
-    }else{
-      this.presentAlert("Agenda","Erro","Todos os campos são Obrigatórios");
-    }
+  get errorControl(){
+    return this.form_cadastrar.controls;
   }
-  private validar(campo: any): boolean{
-    if(!campo){
+
+  submitForm(): boolean{
+    this.is_Submitted = true;
+    if(!this.form_cadastrar.valid){
+      this.presentAlert("Agenda","Erro","Todos os campos são Obrigatórios");
       return false;
     }else{
-      return true;
+      this.cadastrar();
     }
+  }
+
+  private cadastrar() : void{
+      this._contatoService.inserir(this.form_cadastrar.value);
+      this.presentAlert("Agenda","Sucesso","Cadastro Realizado");
+      this._router.navigate(["/home"]);
   }
   async presentAlert(cabecalho : string, subcabecalho : string,msg: string) {
     const alert = await this.alertController.create({

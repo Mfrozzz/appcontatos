@@ -26,7 +26,7 @@ export class DetalharPage implements OnInit {
     const nav = this._router.getCurrentNavigation();
     this.contato = nav.extras.state.obj;
     //console.log(this.contato);
-    this.nome=this.contato.nome;
+    this.nome=this.contato.nome;//do mesmo modo que o da cadastrar, mas no lugar das "" vira this.contato.nome e Validators.required no próximo campo do array
     this.telefone=this.contato.telefone;
     this.genero=this.contato.genero;
     this.dataNascimento=this.contato.dataNascimento;
