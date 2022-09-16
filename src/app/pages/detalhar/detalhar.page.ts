@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Contato } from 'src/app/models/contato';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ContatoService } from 'src/app/services/contato.service';
 import { AlertController } from '@ionic/angular';
 
@@ -10,26 +11,25 @@ import { AlertController } from '@ionic/angular';
   styleUrls: ['./detalhar.page.scss'],
 })
 export class DetalharPage implements OnInit {
-  [x: string]: any;
   contato : Contato;
-  nome:string;
-  genero:string;
-  dataNascimento:string;
-  telefone:number;
+  formdetalhar: FormGroup;
   data:string;
   editar: boolean = true;
+  is_Submitted: boolean = false; //form tempo real
 
-  constructor(private alertController: AlertController,private _router: Router, private _contatoService : ContatoService) { }
+  constructor(private alertController: AlertController,private _router: Router, private _contatoService : ContatoService,private _formBuilder:FormBuilder) { }
 
   ngOnInit() {
     this.data=new Date().toISOString();
     const nav = this._router.getCurrentNavigation();
     this.contato = nav.extras.state.obj;
     //console.log(this.contato);
-    this.nome=this.contato.nome;//do mesmo modo que o da cadastrar, mas no lugar das "" vira this.contato.nome e Validators.required no próximo campo do array
-    this.telefone=this.contato.telefone;
-    this.genero=this.contato.genero;
-    this.dataNascimento=this.contato.dataNascimento;
+    this.formdetalhar = this._formBuilder.group({
+      nome:[this.contato.nome,[Validators.required]],
+      telefone:[this.contato.telefone,[Validators.required,Validators.minLength(10)]],
+      genero:[this.contato.genero,[Validators.required]],
+      dataNascimento:[this.contato.dataNascimento,[Validators.required]]
+    });
   }
 
   alterarEdicao(): void{
@@ -40,11 +40,17 @@ export class DetalharPage implements OnInit {
     }
   }
 
-  private validar(campo: any): boolean{
-    if(!campo){
+  get errorControl(){
+    return this.formdetalhar.controls;
+  }
+
+  submitForm(): boolean{
+    this.is_Submitted = true;
+    if(!this.formdetalhar.valid){
+      this.presentAlert("Agenda","Erro","Todos os campos são Obrigatórios");
       return false;
     }else{
-      return true;
+      this.edicao();
     }
   }
 
@@ -60,21 +66,11 @@ export class DetalharPage implements OnInit {
   }
 
   edicao() : void{
-    this.dataNascimento = this.dataNascimento.split('T')[0];
-    //console.log(this.genero+" "+this.dataNascimento);
-    if((this.validar(this.nome))&&(this.validar(this.telefone))&&(this.validar(this.genero))&&(this.validar(this.dataNascimento))){
-      
-      if(this._contatoService.editar(this.contato,this.nome ,this.telefone,this.genero,this.dataNascimento)){
-        this.presentAlert("Agenda","Sucesso","Cadastro Alterado");
-        this._router.navigate(["/home"]);
-      }else{
-        this.presentAlert("Agenda","Erro","Contato não encontrado");
-      }
-      /*let contato = new Contato(this.nome,this.telefone,this.genero,this.dataNascimento);
-      this._contatoService.inserir(contato);
-      this.presentAlert("Agenda","Sucesso","Cadastro Realizado");*/
+    if(this._contatoService.editar(this.contato,this.formdetalhar.value['nome'] ,this.formdetalhar.value['telefone'],this.formdetalhar.value['genero'],this.formdetalhar.value['dataNascimento'])){
+      this.presentAlert("Agenda","Sucesso","Cadastro Alterado");
+      this._router.navigate(["/home"]);
     }else{
-      this.presentAlert("Agenda","Erro","Todos os campos são Obrigatórios");
+      this.presentAlert("Agenda","Erro","Contato não encontrado");
     }
   }
 
@@ -103,12 +99,15 @@ export class DetalharPage implements OnInit {
           handler: ()=>{}
         },{
           text:'Confimar',
+          role: 'confirmar',
           handler: ()=>{this.excluirContato()}
         }
       ],
     });
 
     await alert.present();
+
+    const { role } = await alert.onDidDismiss();
   }
 
 }
