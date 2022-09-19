@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { Contato } from 'src/app/models/contato';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ContatoService } from 'src/app/services/contato.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
+import { ContatoFirebaseService } from 'src/app/services/contato-firebase.service';
 
 @Component({
   selector: 'app-detalhar',
@@ -17,7 +18,7 @@ export class DetalharPage implements OnInit {
   editar: boolean = true;
   is_Submitted: boolean = false; //form tempo real
 
-  constructor(private alertController: AlertController,private _router: Router, private _contatoService : ContatoService,private _formBuilder:FormBuilder) { }
+  constructor(private alertController: AlertController,private _router: Router, private _contatoFService : ContatoFirebaseService,private _formBuilder:FormBuilder,private _loadingCtrl: LoadingController) { }
 
   ngOnInit() {
     this.data=new Date().toISOString();
@@ -66,24 +67,28 @@ export class DetalharPage implements OnInit {
   }
 
   edicao() : void{
-    if(this._contatoService.editar(this.contato,this.formdetalhar.value['nome'] ,this.formdetalhar.value['telefone'],this.formdetalhar.value['genero'],this.formdetalhar.value['dataNascimento'])){
-      this.presentAlert("Agenda","Sucesso","Cadastro Alterado");
+    this.showLoading("Aguarde...",1000);
+    this._contatoFService.editarContato(this.formdetalhar.value,this.contato.id).then(()=>{
+      this.presentAlert("Agenda","Editar Contato.","Contato editado com sucesso.");
       this._router.navigate(["/home"]);
-    }else{
-      this.presentAlert("Agenda","Erro","Contato não encontrado");
-    }
+    }).catch(()=>{
+      this.presentAlert("Agenda","Editar Contato","Erro ao editar.");
+    })
   }
 
   excluir():void{
     this.presentAlertConfirm("Agenda","Excluir contato","Você quer excluir o contato");
   }
   private excluirContato(): void{
-    if(this._contatoService.excluir(this.contato)){
-      this.presentAlert("Agenda","Sucesso","Cadastro excluido");
-      this._router.navigate(["/home"]);
-    }else{
-      this.presentAlert("Agenda","Erro","Contato não encontrado");
-    }
+    this.showLoading("Aguarde...",1000);
+      this._contatoFService.excluirContato(this.contato).then(()=>{
+        this._loadingCtrl.dismiss();
+        this.presentAlert("Agenda","Sucesso","Contato excluido com sucesso.")
+        this._router.navigate(["/home"]);
+      }).catch(()=>{
+        this._loadingCtrl.dismiss();
+        this.presentAlert("Agenda","Erro","Erro ao excluir contato.")
+      });
   }
 // no trab outro arquivo.
   async presentAlertConfirm(cabecalho : string, subcabecalho : string,msg: string) {
@@ -108,6 +113,15 @@ export class DetalharPage implements OnInit {
     await alert.present();
 
     const { role } = await alert.onDidDismiss();
+  }
+
+  async showLoading(mensagem:string,duracao:number) {
+    const loading = await this._loadingCtrl.create({
+      message: mensagem,
+      duration: duracao,
+    });
+
+    loading.present();
   }
 
 }
