@@ -19,6 +19,8 @@ export class CadastrarPage implements OnInit {
   form_cadastrar: FormGroup;
   is_Submitted: boolean = false; //form tempo real
   data : string;
+  event : any;
+  imagem: any;
   constructor(private alertController: AlertController,private _router : Router, private _contatoFService : ContatoFirebaseService, private _formBuilder:FormBuilder,private _loadingCtrl: LoadingController) { }
 
   ngOnInit() {
@@ -27,8 +29,13 @@ export class CadastrarPage implements OnInit {
       nome:["",[Validators.required]],
       telefone:["",[Validators.required,Validators.minLength(10)]],
       genero:["",[Validators.required]],
-      dataNascimento:["",[Validators.required]]
+      dataNascimento:["",[Validators.required]],
+      imagem: ["",[Validators.required]]
     });
+  }
+
+  uploadFile(imagem:any){
+    this.imagem = imagem.files;
   }
 
   get errorControl(){
@@ -47,7 +54,7 @@ export class CadastrarPage implements OnInit {
 
   private cadastrar() : void{
     this.showLoading("Aguarde...",1000);
-      this._contatoFService.inserirContato(this.form_cadastrar.value).then(()=>{
+      this._contatoFService.enviarImagem(this.imagem,this.form_cadastrar.value).then(()=>{
         this._loadingCtrl.dismiss();
         this.presentAlert("Agenda","Sucesso","Cadastro Realizado.");
         this._router.navigate(["/home"]);
@@ -56,7 +63,7 @@ export class CadastrarPage implements OnInit {
         this.presentAlert("Agenda","Erro","Cadastro não Realizado.");
         this._router.navigate(["/home"]); 
         console.log(error);
-      })
+      });
   }
   async presentAlert(cabecalho : string, subcabecalho : string,msg: string) {
     const alert = await this.alertController.create({
