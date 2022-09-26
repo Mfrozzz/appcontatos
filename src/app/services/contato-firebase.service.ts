@@ -24,7 +24,7 @@ export class ContatoFirebaseService {
       telefone:contato.telefone,
       genero:contato.genero,
       dataNascimento:contato.dataNascimento,
-      downloadUrl: contato.downloadURL
+      downloadURL: contato.downloadURL
     });
   }
   editarContato(contato:Contato,id:string){
@@ -33,7 +33,7 @@ export class ContatoFirebaseService {
       telefone:contato.telefone,
       genero:contato.genero,
       dataNascimento:contato.dataNascimento,
-      downloadUrl: contato.downloadURL
+      downloadURL: contato.downloadURL
     });
   }
   excluirContato(contato:Contato){

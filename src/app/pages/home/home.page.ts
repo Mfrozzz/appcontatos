@@ -13,7 +13,9 @@ export class HomePage {
   contatos: Contato[];
 
   constructor(private _route : Router, private _contatofirebase : ContatoFirebaseService) {
+    
     this.carregarContatos();
+    
   }
 
   carregarContatos(){
@@ -25,6 +27,7 @@ export class HomePage {
         }as Contato;
       });
     });
+    
   }
 
   gotoCadastrar(){
@@ -32,6 +35,7 @@ export class HomePage {
   }
   gotoDetalhar(contato : Contato){
     //console.log(contato);
+    console.log(contato);
     this._route.navigateByUrl("/detalhar",{state:{obj: contato}});
   }
 }

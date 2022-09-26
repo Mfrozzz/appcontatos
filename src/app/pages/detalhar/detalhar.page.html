@@ -59,6 +59,9 @@
     
       <ion-button disabled="{{editar}}" expand="block" (click)="edicao()">Editar</ion-button>
       <ion-button disabled="{{editar}}" expand="block" (click)="excluir()" color="danger">Excluir</ion-button>
+      <ion-item>
+        <ion-img src="{{contato.downloadURL}}"></ion-img>
+      </ion-item>
     </form>
   </ion-list>
 </ion-content>
