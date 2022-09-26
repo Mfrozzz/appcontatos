@@ -32,7 +32,8 @@ export class ContatoFirebaseService {
       nome:contato.nome,
       telefone:contato.telefone,
       genero:contato.genero,
-      dataNascimento:contato.dataNascimento
+      dataNascimento:contato.dataNascimento,
+      downloadUrl: contato.downloadURL
     });
   }
   excluirContato(contato:Contato){
@@ -54,6 +55,27 @@ export class ContatoFirebaseService {
         uploadedFile.subscribe(resp => {
           contato.downloadURL = resp;
           this.inserirContato(contato);
+        })
+      })
+    ).subscribe();
+    return task;
+  }
+
+  editarImagem(imagem:any, contato:Contato,id:string){
+    const file = imagem.item(0);
+    if(file.type.split('/')[0]!='image'){
+      console.error("Tipo não suportado");
+      return;
+    }
+    const path = `images/${new Date().getTime()}_${file.name}`;
+    const fileRef = this._angularFireStorage.ref(path);
+    let task = this._angularFireStorage.upload(path,file);
+    task.snapshotChanges().pipe(
+      finalize(()=>{
+        let uploadedFile = fileRef.getDownloadURL();
+        uploadedFile.subscribe(resp => {
+          contato.downloadURL = resp;
+          this.editarContato(contato,id);
         })
       })
     ).subscribe();

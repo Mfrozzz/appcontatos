@@ -17,6 +17,8 @@ export class DetalharPage implements OnInit {
   data:string;
   editar: boolean = true;
   is_Submitted: boolean = false; //form tempo real
+  event : any;
+  imagem: any;
 
   constructor(private alertController: AlertController,private _router: Router, private _contatoFService : ContatoFirebaseService,private _formBuilder:FormBuilder,private _loadingCtrl: LoadingController) { }
 
@@ -29,7 +31,8 @@ export class DetalharPage implements OnInit {
       nome:[this.contato.nome,[Validators.required]],
       telefone:[this.contato.telefone,[Validators.required,Validators.minLength(10)]],
       genero:[this.contato.genero,[Validators.required]],
-      dataNascimento:[this.contato.dataNascimento,[Validators.required]]
+      dataNascimento:[this.contato.dataNascimento,[Validators.required]],
+      imagem: [this.contato.downloadURL,[Validators.required]]
     });
   }
 
@@ -68,11 +71,15 @@ export class DetalharPage implements OnInit {
 
   edicao() : void{
     this.showLoading("Aguarde...",1000);
-    this._contatoFService.editarContato(this.formdetalhar.value,this.contato.id).then(()=>{
+    this._contatoFService.editarImagem(this.imagem,this.formdetalhar.value,this.contato.id).then(()=>{
+      this._loadingCtrl.dismiss();
       this.presentAlert("Agenda","Editar Contato.","Contato editado com sucesso.");
       this._router.navigate(["/home"]);
-    }).catch(()=>{
+    }).catch((error)=>{
+      this._loadingCtrl.dismiss();
       this.presentAlert("Agenda","Editar Contato","Erro ao editar.");
+      this._router.navigate(["/home"]); 
+      console.log(error);
     })
   }
 
@@ -122,6 +129,10 @@ export class DetalharPage implements OnInit {
     });
 
     loading.present();
+  }
+
+  uploadFile(imagem:any){
+    this.imagem = imagem.files;
   }
 
 }

@@ -50,6 +50,12 @@
       <ion-item *ngIf="(((errorControl.dataNascimentotouched) || (errorControl.dataNascimento.dirty))&& errorControl.dataNascimento.errors)">
         <span *ngIf="errorControl.dataNascimento.errors?.required">Data de Nascimento é obrigatório!</span>
       </ion-item>
+
+      <ion-item>
+        <ion-button color="success" size="default" shape="round" class="img-input">
+          <input type="file" (change)="uploadFile($event.target)" formControlName="imagem">
+        </ion-button>
+      </ion-item>
     
       <ion-button disabled="{{editar}}" expand="block" (click)="edicao()">Editar</ion-button>
       <ion-button disabled="{{editar}}" expand="block" (click)="excluir()" color="danger">Excluir</ion-button>
